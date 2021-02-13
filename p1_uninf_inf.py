@@ -245,15 +245,15 @@ def ucs(graph, start, end):
         
         node = graph.get_vertex(node_id)
             
-        for i in node.get_neighbors():
-            new_cost = current_cost[node.id] + node.get_weight(i)
-            if i.id not in current_cost or new_cost < current_cost[i.id]:
-                current_cost[i.id] = new_cost
+        for ngbr in node.get_neighbors():
+            new_cost = current_cost[node.id] + node.get_weight(ngbr)
+            if ngbr.id not in current_cost or new_cost < current_cost[ngbr.id]:
+                current_cost[ngbr.id] = new_cost
 
                 # only value of g is considered in the priority queue
                 # here g = new_cost
-                heapq.heappush(frontier,(new_cost, i.id))
-                parent[i.id] = node.id
+                heapq.heappush(frontier,(new_cost, ngbr.id))
+                parent[ngbr.id] = node.id
                 
 
 def aStar(graph, start, end):
@@ -298,16 +298,16 @@ def aStar(graph, start, end):
           
         node = graph.get_vertex(node_id)
             
-        for i in node.get_neighbors():
-            new_cost = current_cost[node.id] + node.get_weight(i)
-            if i.id not in current_cost or new_cost < current_cost[i.id]:
-                current_cost[i.id] = new_cost
-                f = new_cost + heuristic(node, i)
+        for ngbr in node.get_neighbors():
+            new_cost = current_cost[node.id] + node.get_weight(ngbr)
+            if ngbr.id not in current_cost or new_cost < current_cost[ngbr.id]:
+                current_cost[ngbr.id] = new_cost
+                f = new_cost + heuristic(node, ngbr)
 
                 # value of the f = g + h considered in the priority queue
-                # here g = new_cost, h = heuristic(node, i)
-                heapq.heappush(frontier,(f, i.id))
-                parent[i.id] = node.id
+                # here g = new_cost, h = heuristic(node, ngbr)
+                heapq.heappush(frontier,(f, ngbr.id))
+                parent[ngbr.id] = node.id
 
         
 def file_reader(filepath, graph):
