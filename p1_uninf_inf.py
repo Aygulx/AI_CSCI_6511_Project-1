@@ -176,7 +176,7 @@ class Graph:
 def heuristic(frm, to):
     """Heuristic function.
 
-    Calculates Manhattan distance between two nodes (frm, to).
+    Calculates Euclidean distance between two nodes (frm, to).
 
     Parameters
     ----------
@@ -191,17 +191,21 @@ def heuristic(frm, to):
     from_cell = frm.cell_id
     to_cell = to.cell_id
 
-    # from  cell IDs extract (1st digit + 1) as x coordinate
-    # and (2nd digit + 1) as y coordinate
-    x_frm = ((from_cell // 10) + 1) * 100
-    y_frm = ((from_cell % 10) + 1) * 100
+    # from  cell IDs extract 1st digit as x coordinate
+    # and 2nd digit as y coordinate
+    x_frm = (from_cell // 10)
+    y_frm = (from_cell % 10) 
 
-    x_to = ((to_cell // 10) + 1) * 100
-    y_to = ((to_cell % 10) + 1) * 100
+    x_to = (to_cell // 10)
+    y_to = (to_cell % 10) 
 
-    dist = abs(x_to - x_frm) + abs(y_to - y_frm)
-    
-    return dist
+    dist = ((x_to/1000 - x_frm/1000)**2 + (y_to/1000 - y_frm/1000)**2)**0.5
+    if ((x_to - x_frm == 1 and y_to - y_frm == 0)
+        or (x_to - x_frm == 0 and y_to - y_frm == 1)):
+        return 0
+    else:
+        return dist * 100
+
 
 def ucs(graph, start, end):
     """UCS algoritm.
@@ -225,7 +229,9 @@ def ucs(graph, start, end):
     global parent
     parent = {}
     global visited
-    visited = []
+    visited = set()
+    global visited_num
+    visited_num = 0
     global frontier
     frontier = []
 	
@@ -239,12 +245,15 @@ def ucs(graph, start, end):
     
     while frontier:
         cost, node_id = heapq.heappop(frontier)
-        
         if node_id == goal.id:
             return current_cost[goal.id]
-        
+            visited.add(node_id)
+            visited_num += 1
+        visited.add(node_id)
+        visited_num += 1
+
         node = graph.get_vertex(node_id)
-            
+                    
         for ngbr in node.get_neighbors():
             new_cost = current_cost[node.id] + node.get_weight(ngbr)
             if ngbr.id not in current_cost or new_cost < current_cost[ngbr.id]:
@@ -282,7 +291,9 @@ def aStar(graph, start, end):
     current_cost[start.id] = 0
     
     global visited
-    visited = []
+    visited = set()
+    global visited_num
+    visited_num = 0
     global frontier
     frontier = []
     f = 0
@@ -295,6 +306,11 @@ def aStar(graph, start, end):
         
         if node_id == goal.id:
             return current_cost[goal.id]
+            visited.add(node_id)
+            visited_num += 1
+
+        visited.add(node_id)
+        visited_num += 1
           
         node = graph.get_vertex(node_id)
             
@@ -382,13 +398,9 @@ if __name__ == '__main__':
     # construcnting g graph from input file
     file_reader(inputpath, g)
 
-    choise = input('Start and end points from input file are ({}, {})\
-                   .\nDo yo want to change them? (y/n) '\
-                   .format(source, dest))
 
-    if choise[0].lower() == 'y':
-        source = int(input('Source: '))
-        dest = int(input('Destination: '))
+    source = int(input('Source: '))
+    dest = int(input('Destination: '))
 
     # for source == dest case do not do additional calculations
     if source == dest:
@@ -396,13 +408,18 @@ if __name__ == '__main__':
         shortest_path = str(source)
     else:
         cost_ucs = ucs(g, source, dest)
-        cost_astar = aStar(g, source, dest)
+        print('Optimal UCS cost from {} to {} is: {}'.format(source, dest, cost_ucs))    
+        print(visited)
+        print(visited_num)
 
+        cost_astar = aStar(g, source, dest)
+        print('Optimal A* cost from {} to {} is: {}'.format(source, dest, cost_astar))    
+        print(visited)
+        print(visited_num)
+        
         shortest_path = find_path(source, dest)        
     
     
-    print('Optimal UCS cost from {} to {} is: {}'.format(source, dest, cost_ucs))    
-    print('Optimal A* cost from {} to {} is: {}'.format(source, dest, cost_astar))    
     print('Shortest path is:', shortest_path)
 
 
