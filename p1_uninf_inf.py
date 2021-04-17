@@ -185,7 +185,7 @@ def heuristic(frm, to):
     to : int
         ID of the destination node.
 
-    Returns: Manhattan distance
+    Returns: Euclidean distance
     """
     
     from_cell = frm.cell_id
@@ -199,12 +199,20 @@ def heuristic(frm, to):
     x_to = (to_cell // 10)
     y_to = (to_cell % 10) 
 
-    dist = ((x_to/1000 - x_frm/1000)**2 + (y_to/1000 - y_frm/1000)**2)**0.5
+    dist = ((x_to - x_frm)**2 + (y_to - y_frm)**2)**0.5
+    
+    # as in same cell can be up to 14.1 away
+    if from_cell == to_cell:
+        return 14.1
+
+    # if adjacent - distance is 0    
     if ((x_to - x_frm == 1 and y_to - y_frm == 0)
         or (x_to - x_frm == 0 and y_to - y_frm == 1)):
         return 0
+    
+    # other cases
     else:
-        return dist * 100
+        return dist
 
 
 def ucs(graph, start, end):
